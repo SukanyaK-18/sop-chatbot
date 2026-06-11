@@ -57,15 +57,17 @@ class QueryEngine:
         )
 
         prompt = (
-            "You are an assistant that answers questions based solely on the provided SOP documents.\n"
-            "Do not use any knowledge outside of the provided context.\n"
-            "Give a complete and detailed answer. Include all steps, sub-steps, conditions, and details from the context that relate to the question.\n"
-            "Do not summarize or abbreviate. If there are numbered steps, list them all with their full details.\n"
-            "Stay focused on the topic asked — but within that topic, be exhaustive.\n\n"
+            "You are an assistant that answers questions using ONLY the exact text from the provided SOP documents.\n"
+            "IMPORTANT RULES:\n"
+            "- Copy the relevant text EXACTLY as it appears in the context. Do not rephrase, summarize, or rewrite.\n"
+            "- Preserve the original formatting: bullet points, numbered lists, headings, and line breaks.\n"
+            "- Only include text that is directly about what was asked. Do not add unrelated content.\n"
+            "- Do not add your own explanations, notes, or commentary.\n"
+            "- If the answer has bullet points in the original, keep them as bullet points.\n\n"
             f"Context:\n{context_text}\n\n"
             f"Conversation history:\n{history_text}\n\n"
             f"Question: {query_text}\n"
-            "Answer (complete and detailed):"
+            "Answer (copy exact text from the document):"
         )
 
         try:
