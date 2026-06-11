@@ -121,7 +121,7 @@ st.markdown("""
 # Bootstrap shared components once per session
 # ---------------------------------------------------------------------------
 
-@st.cache_resource(ttl=60)  # Refresh every 60 seconds
+@st.cache_resource(ttl=300)
 def init_components():
     config = ChatbotConfig()
     index = SOPIndex(config)
@@ -130,7 +130,12 @@ def init_components():
     engine = QueryEngine(index, session, config)
     return ingester, engine, session
 
-ingester, engine, session_ctx = init_components()
+try:
+    ingester, engine, session_ctx = init_components()
+except Exception as e:
+    st.error(f"⚠️ Failed to initialize: {e}")
+    st.info("The app may need more memory or the embedding model failed to download. Check the logs.")
+    st.stop()
 
 SESSION_ID = "ui"
 
