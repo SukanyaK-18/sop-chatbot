@@ -36,7 +36,9 @@ SESSION_ID = "ui"
 # ---------------------------------------------------------------------------
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []  # list of {"role": "user"|"assistant", "content": str}
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Hi, Good Day! 👋 How may I help you? Upload an SOP document and ask me anything about it."}
+    ]
 
 # ---------------------------------------------------------------------------
 # Sidebar — document management
