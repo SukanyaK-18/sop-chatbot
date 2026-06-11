@@ -106,41 +106,74 @@ def _describe_image_with_vision(image_b64: str, image_index: int) -> str:
 
 
 def _extract_docx_text(file_path: str) -> str:
-    """Extract all text from a .docx in document order, including tables."""
+    """Extract all text from a .docx in document order, including tables and hyperlinks."""
     from docx import Document as DocxDocument
     from docx.oxml.ns import qn
 
     doc = DocxDocument(file_path)
     lines: list[str] = []
 
+    # Build a map of relationship IDs to hyperlink URLs
+    rels = {}
+    for rel in doc.part.rels.values():
+        if "hyperlink" in rel.reltype:
+            rels[rel.rId] = rel._target
+
+    def _extract_paragraph_text(p_element) -> str:
+        """Extract text from a paragraph, including hyperlink URLs."""
+        parts = []
+        for child in p_element:
+            tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
+
+            if tag == "hyperlink":
+                # Get the display text
+                link_text = "".join(
+                    t.text or "" for t in child.iter() if t.tag.endswith("}t")
+                )
+                # Get the URL from relationships
+                rId = child.get(qn("r:id"))
+                url = rels.get(rId, "") if rId else ""
+                if url and link_text:
+                    parts.append(f"{link_text} ({url})")
+                elif url:
+                    parts.append(url)
+                elif link_text:
+                    parts.append(link_text)
+
+            elif tag == "r":
+                # Regular run text
+                run_text = "".join(
+                    t.text or "" for t in child.iter() if t.tag.endswith("}t")
+                )
+                parts.append(run_text)
+
+        return "".join(parts).strip()
+
     for block in doc.element.body:
         tag = block.tag.split("}")[-1] if "}" in block.tag else block.tag
 
         if tag == "p":
-            # Plain paragraph — grab all run text
-            text = "".join(r.text for r in block.iterchildren() if r.tag.endswith("}r"))
-            # Also catch <w:t> directly
-            if not text:
-                text = "".join(t.text or "" for t in block.iter() if t.tag.endswith("}t"))
-            text = text.strip()
+            text = _extract_paragraph_text(block)
             if text:
                 lines.append(text)
 
         elif tag == "tbl":
             # Walk every cell in every row
-            for row in block.iterchildren():  # <w:tr>
+            for row in block.iterchildren():
                 if not row.tag.endswith("}tr"):
                     continue
-                for cell in row.iterchildren():  # <w:tc>
+                for cell in row.iterchildren():
                     if not cell.tag.endswith("}tc"):
                         continue
-                    cell_text = "".join(
-                        t.text or ""
-                        for t in cell.iter()
-                        if t.tag.endswith("}t")
-                    ).strip()
-                    if cell_text:
-                        lines.append(cell_text)
+                    # Each cell can have multiple paragraphs
+                    cell_parts = []
+                    for p in cell.iterchildren():
+                        if p.tag.endswith("}p"):
+                            p_text = _extract_paragraph_text(p)
+                            if p_text:
+                                cell_parts.append(p_text)
+                    if cell_parts:
+                        lines.append(" ".join(cell_parts))
 
     return "\n".join(lines)
 
