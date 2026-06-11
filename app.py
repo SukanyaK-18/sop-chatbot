@@ -69,6 +69,23 @@ st.markdown("""
     margin-right: 6px;
 }
 
+/* Main content area gradient glow in top-right corner */
+.stApp {
+    position: relative;
+}
+.stApp::before {
+    content: '';
+    position: fixed;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(68, 114, 196, 0.15) 0%, rgba(26, 188, 156, 0.08) 40%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* Chat messages styling */
 [data-testid="stChatMessage"] {
     border-radius: 12px;
