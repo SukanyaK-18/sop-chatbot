@@ -71,7 +71,7 @@ class QueryEngine:
         try:
             response = self._get_llm_client().chat.completions.create(
                 model=self._config.llm_model,
-                max_tokens=4096,
+                max_tokens=2048,
                 messages=[{"role": "user", "content": prompt}],
                 timeout=self._config.response_timeout_seconds,
             )
