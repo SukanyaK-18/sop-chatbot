@@ -15,113 +15,16 @@ from sop_chatbot.session import SessionContext
 st.set_page_config(page_title="SOP Chatbot", page_icon="🤖", layout="wide")
 
 # ---------------------------------------------------------------------------
-# Custom CSS for styling
+# Simple header
 # ---------------------------------------------------------------------------
-st.markdown("""
-<style>
-/* Animated bot avatar */
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.bot-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px 0;
-    margin-bottom: 10px;
-}
-
-.bot-avatar {
-    font-size: 3.5rem;
-    animation: bounce 2s ease-in-out infinite;
-    display: inline-block;
-}
-
-.bot-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4472C4, #1ABC9C);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-}
-
-.bot-subtitle {
-    font-size: 0.95rem;
-    color: #888;
-    margin-top: 4px;
-}
-
-/* Status indicator */
-.status-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #1ABC9C;
-    animation: pulse 1.5s ease-in-out infinite;
-    margin-right: 6px;
-}
-
-/* Main content area gradient glow in top-right corner */
-.stApp {
-    position: relative;
-}
-.stApp::before {
-    content: '';
-    position: fixed;
-    top: -100px;
-    right: -100px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(68, 114, 196, 0.15) 0%, rgba(26, 188, 156, 0.08) 40%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Chat messages styling */
-[data-testid="stChatMessage"] {
-    border-radius: 12px;
-    margin-bottom: 8px;
-}
-
-/* Sidebar styling */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-}
-
-section[data-testid="stSidebar"] .stMarkdown h1 {
-    color: #4472C4;
-    font-size: 1.1rem;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------------------------------------------
-# Bot Header with animated avatar
-# ---------------------------------------------------------------------------
-st.markdown("""
-<div class="bot-header">
-    <div class="bot-avatar">🤖</div>
-    <div>
-        <p class="bot-title">SOP Chatbot</p>
-        <p class="bot-subtitle"><span class="status-dot"></span>Online — Ask me anything about your SOP documents</p>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+st.title("🤖 SOP Chatbot")
+st.caption("Ask questions about your ingested Standard Operating Procedure documents.")
 
 # ---------------------------------------------------------------------------
 # Bootstrap shared components once per session
 # ---------------------------------------------------------------------------
 
-@st.cache_resource(ttl=300)
+@st.cache_resource
 def init_components():
     config = ChatbotConfig()
     index = SOPIndex(config)
@@ -134,7 +37,7 @@ try:
     ingester, engine, session_ctx = init_components()
 except Exception as e:
     st.error(f"⚠️ Failed to initialize: {e}")
-    st.info("The app may need more memory or the embedding model failed to download. Check the logs.")
+    st.info("The embedding model may need more memory. Try running locally with: python -m streamlit run app.py")
     st.stop()
 
 SESSION_ID = "ui"
@@ -246,8 +149,6 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 # Main chat area
 # ---------------------------------------------------------------------------
-
-# Main chat area (header already rendered above via HTML)
 
 # Render chat history
 for msg in st.session_state.messages:
