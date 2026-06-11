@@ -45,20 +45,33 @@ if "messages" not in st.session_state:
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.title("API Key")
-    api_key = st.text_input(
-        "Groq API Key",
-        type="password",
-        placeholder="gsk_...",
-        help="Get a free key at console.groq.com",
-    )
-    if api_key:
-        os.environ["GROQ_API_KEY"] = api_key
-        st.success("API key set ✓", icon="✅")
-    else:
-        st.warning("Enter your Groq API key to enable querying.")
+    # Load API key from Streamlit secrets (set during deployment) or fall back to manual input
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    if not api_key:
+        # Check Streamlit secrets
+        try:
+            api_key = st.secrets.get("GROQ_API_KEY", "")
+        except Exception:
+            api_key = ""
 
-    st.divider()
+    if not api_key:
+        # Only show input if key is not pre-configured
+        st.title("🔑 API Key")
+        api_key = st.text_input(
+            "Groq API Key",
+            type="password",
+            placeholder="gsk_...",
+            help="Get a free key at console.groq.com",
+        )
+        if api_key:
+            os.environ["GROQ_API_KEY"] = api_key
+            st.success("API key set ✓", icon="✅")
+        else:
+            st.warning("Enter your Groq API key to enable querying.")
+        st.divider()
+    else:
+        os.environ["GROQ_API_KEY"] = api_key
+
     st.title("📂 Documents")
 
     uploaded = st.file_uploader(
