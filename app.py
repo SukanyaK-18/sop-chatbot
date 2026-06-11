@@ -248,7 +248,7 @@ if prompt := st.chat_input("Ask a question about your SOPs...", disabled=not api
                 response_md = result.answer
 
                 if result.sources:
-                    response_md += f"\n\n*Confidence: {result.confidence_score:.0%}*"
+                    pass  # Confidence removed from output
 
                 st.markdown(response_md)
                 st.session_state.messages.append({"role": "assistant", "content": response_md})
