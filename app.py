@@ -228,25 +228,45 @@ if prompt := st.chat_input("Ask a question about your SOPs...", disabled=not api
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate response
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                result = engine.query(prompt, SESSION_ID)
+    # Handle common greetings/small talk without hitting the LLM
+    greeting_words = {"hi", "hello", "hey", "good morning", "good afternoon", "good evening", "thanks", "thank you", "bye", "goodbye"}
+    if prompt.strip().lower() in greeting_words:
+        greetings_map = {
+            "hi": "Hi there! 👋 How can I help you today? Ask me anything about your SOP documents.",
+            "hello": "Hello! 👋 I'm ready to help. What would you like to know about your SOPs?",
+            "hey": "Hey! 👋 Ask me any question about the uploaded SOP documents.",
+            "good morning": "Good morning! ☀️ How can I assist you today?",
+            "good afternoon": "Good afternoon! How can I help you?",
+            "good evening": "Good evening! What can I help you with?",
+            "thanks": "You're welcome! Let me know if you have more questions. 😊",
+            "thank you": "You're welcome! Happy to help. Let me know if there's anything else. 😊",
+            "bye": "Goodbye! Have a great day! 👋",
+            "goodbye": "Goodbye! Feel free to come back anytime. 👋",
+        }
+        response_md = greetings_map.get(prompt.strip().lower(), "Hi! How can I help you with your SOPs?")
+        with st.chat_message("assistant"):
+            st.markdown(response_md)
+        st.session_state.messages.append({"role": "assistant", "content": response_md})
+    else:
+        # Generate response from SOP documents
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    result = engine.query(prompt, SESSION_ID)
 
-                response_md = result.answer
+                    response_md = result.answer
 
-                if result.sources:
-                    pass  # Confidence removed from output
+                    if result.sources:
+                        pass  # Confidence removed from output
 
-                st.markdown(response_md)
-                st.session_state.messages.append({"role": "assistant", "content": response_md})
+                    st.markdown(response_md)
+                    st.session_state.messages.append({"role": "assistant", "content": response_md})
 
-            except QueryTimeoutError:
-                msg = "⚠️ The query timed out. Please try again."
-                st.error(msg)
-                st.session_state.messages.append({"role": "assistant", "content": msg})
-            except LLMError as e:
-                msg = f"⚠️ LLM error: {e}"
-                st.error(msg)
-                st.session_state.messages.append({"role": "assistant", "content": msg})
+                except QueryTimeoutError:
+                    msg = "⚠️ The query timed out. Please try again."
+                    st.error(msg)
+                    st.session_state.messages.append({"role": "assistant", "content": msg})
+                except LLMError as e:
+                    msg = f"⚠️ LLM error: {e}"
+                    st.error(msg)
+                    st.session_state.messages.append({"role": "assistant", "content": msg})
