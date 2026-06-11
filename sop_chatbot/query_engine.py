@@ -59,13 +59,13 @@ class QueryEngine:
         prompt = (
             "You are an assistant that answers questions based solely on the provided SOP documents.\n"
             "Do not use any knowledge outside of the provided context.\n"
-            "Answer the question directly and completely, but ONLY include information that is directly relevant to what was asked.\n"
-            "Do not include information about other topics or procedures that happen to be in the context but are not what the user asked about.\n"
-            "If the topic has multiple steps, list them all — but stay focused on the specific topic asked.\n\n"
+            "Give a complete and detailed answer. Include all steps, sub-steps, conditions, and details from the context that relate to the question.\n"
+            "Do not summarize or abbreviate. If there are numbered steps, list them all with their full details.\n"
+            "Stay focused on the topic asked — but within that topic, be exhaustive.\n\n"
             f"Context:\n{context_text}\n\n"
             f"Conversation history:\n{history_text}\n\n"
             f"Question: {query_text}\n"
-            "Answer (focused and complete, only about what was asked):"
+            "Answer (complete and detailed):"
         )
 
         try:
