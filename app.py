@@ -12,7 +12,93 @@ from sop_chatbot.models import DocumentNotFoundError, IngestError, LLMError, Que
 from sop_chatbot.query_engine import QueryEngine
 from sop_chatbot.session import SessionContext
 
-st.set_page_config(page_title="SOP Chatbot", page_icon="📋", layout="wide")
+st.set_page_config(page_title="SOP Chatbot", page_icon="🤖", layout="wide")
+
+# ---------------------------------------------------------------------------
+# Custom CSS for styling
+# ---------------------------------------------------------------------------
+st.markdown("""
+<style>
+/* Animated bot avatar */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.bot-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    margin-bottom: 10px;
+}
+
+.bot-avatar {
+    font-size: 3.5rem;
+    animation: bounce 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+.bot-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4472C4, #1ABC9C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.bot-subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* Status indicator */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1ABC9C;
+    animation: pulse 1.5s ease-in-out infinite;
+    margin-right: 6px;
+}
+
+/* Chat messages styling */
+[data-testid="stChatMessage"] {
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+/* Sidebar styling */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+}
+
+section[data-testid="stSidebar"] .stMarkdown h1 {
+    color: #4472C4;
+    font-size: 1.1rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------------------------
+# Bot Header with animated avatar
+# ---------------------------------------------------------------------------
+st.markdown("""
+<div class="bot-header">
+    <div class="bot-avatar">🤖</div>
+    <div>
+        <p class="bot-title">SOP Chatbot</p>
+        <p class="bot-subtitle"><span class="status-dot"></span>Online — Ask me anything about your SOP documents</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
 # Bootstrap shared components once per session
@@ -139,8 +225,7 @@ with st.sidebar:
 # Main chat area
 # ---------------------------------------------------------------------------
 
-st.title("📋 SOP Chatbot")
-st.caption("Ask questions about your ingested Standard Operating Procedure documents.")
+# Main chat area (header already rendered above via HTML)
 
 # Render chat history
 for msg in st.session_state.messages:
@@ -166,19 +251,6 @@ if prompt := st.chat_input("Ask a question about your SOPs...", disabled=not api
                     response_md += f"\n\n*Confidence: {result.confidence_score:.0%}*"
 
                 st.markdown(response_md)
-
-                # Display any images referenced in the chunks used
-                displayed_images = set()
-                for chunk in result.chunks_used:
-                    if "[IMAGE_PATH:" in chunk.text:
-                        # Extract image path from the chunk
-                        for line in chunk.text.split("\n"):
-                            if line.startswith("[IMAGE_PATH:") and line.endswith("]"):
-                                img_path = line[len("[IMAGE_PATH:"):-1]
-                                if img_path not in displayed_images and os.path.exists(img_path):
-                                    st.image(img_path, caption=f"From: {chunk.source}")
-                                    displayed_images.add(img_path)
-
                 st.session_state.messages.append({"role": "assistant", "content": response_md})
 
             except QueryTimeoutError:
