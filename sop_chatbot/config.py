@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class ChatbotConfig:
     top_n: int = 8
-    confidence_threshold: float = 0.2
+    confidence_threshold: float = 0.1
     max_history_pairs: int = 10
     chunk_size: int = 768
     chunk_overlap: int = 100

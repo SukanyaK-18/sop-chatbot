@@ -18,7 +18,7 @@ st.set_page_config(page_title="SOP Chatbot", page_icon="📋", layout="wide")
 # Bootstrap shared components once per session
 # ---------------------------------------------------------------------------
 
-@st.cache_resource
+@st.cache_resource(ttl=60)  # Refresh every 60 seconds
 def init_components():
     config = ChatbotConfig()
     index = SOPIndex(config)
