@@ -15,10 +15,76 @@ from sop_chatbot.session import SessionContext
 st.set_page_config(page_title="SOP Chatbot", page_icon="🤖", layout="wide")
 
 # ---------------------------------------------------------------------------
-# Simple header
+# Custom CSS
 # ---------------------------------------------------------------------------
-st.title("🤖 SOP Chatbot")
-st.caption("Ask questions about your ingested Standard Operating Procedure documents.")
+st.markdown("""
+<style>
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+.bot-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    margin-bottom: 10px;
+}
+.bot-avatar {
+    font-size: 3.5rem;
+    animation: bounce 2s ease-in-out infinite;
+    display: inline-block;
+}
+.bot-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4472C4, #1ABC9C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+.bot-subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin-top: 4px;
+}
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1ABC9C;
+    animation: pulse 1.5s ease-in-out infinite;
+    margin-right: 6px;
+}
+[data-testid="stChatMessage"] {
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+}
+section[data-testid="stSidebar"] .stMarkdown h1 {
+    color: #4472C4;
+    font-size: 1.1rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Header
+st.markdown("""
+<div class="bot-header">
+    <div class="bot-avatar">🤖</div>
+    <div>
+        <p class="bot-title">SOP Chatbot</p>
+        <p class="bot-subtitle"><span class="status-dot"></span>Online — Ask me anything about your SOP documents</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
 # Bootstrap shared components once per session
